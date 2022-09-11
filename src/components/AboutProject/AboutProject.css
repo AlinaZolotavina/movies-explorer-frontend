@@ -1,0 +1,140 @@
+.about {
+    background-color: #202020;
+    padding: 110px 70px;
+    box-sizing: border-box;
+}
+
+.about__title {
+    font-size: 22px;
+    line-height: 27px;
+    font-weight: 400;
+    padding: 0 0 23px;
+    margin: 0;
+    border-bottom: 1px solid #DADADA;
+}
+
+.info {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
+    margin: 70px 0 110px;
+}
+
+.info__element {
+    display: flex;
+    flex-direction: column;
+    max-width: 550px;
+    margin-right: 30px;
+}
+
+.info__element:last-child {
+    margin-right: 0;
+}
+
+.info__element-title {
+    font-size: 20px;
+    line-height: 24px;
+    font-weight: 400;
+    margin: 0 0 26px;
+}
+
+.info__element-text {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+    margin: 0;
+}
+
+.scale {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    grid-template-rows: 36px;
+    row-gap: 14px;
+    list-style: none;
+    font-size: 14px;
+    line-height: 17px;
+    font-weight: 400;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.scale__element {
+    background-color: #303030;
+    padding: 9px 0;
+}
+
+.scale__element_color_green {
+    background-color: #3DDC84;
+    color: #000;
+}
+
+.scale__info {
+    color: #8B8B8B;
+}
+
+@media screen and (max-width: 768px) {
+    .about {
+        padding: 90px 50px;
+    }
+
+    .info {
+        margin: 70px 0 93px;
+    }
+
+    .info__element-text {
+        font-size: 12px;
+        line-height: 18px;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .info {
+        flex-direction: column;
+        margin: 60px 0;
+    }
+
+    .info__element {
+        margin: 0 0 56px;
+    }
+
+    .info__element:last-child {
+        margin: 0;
+    }
+
+    .scale {
+        grid-template-columns: 100px 4fr;
+        row-gap: 10px;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .about {
+        padding: 70px 18px;
+    }
+
+    .about__title {
+        font-size: 18px;
+        line-height: 22px;
+        padding: 0 0 28px;
+    }
+
+    .info__element-title {
+        font-size: 18px;
+        line-height: 22px;
+        margin: 0 0 16px;
+    }
+
+    .info__element-text {
+        font-size: 11px;
+        line-height: 16px;
+    }
+
+    .scale__element {
+        font-size: 11px;
+        line-height: 13px;
+        padding: 11px 0;
+    }
+}
