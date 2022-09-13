@@ -11,7 +11,13 @@ function Form(props) {
             <h2 className="auth__title">{props.titletText}</h2>
             <form className="form" name="props.name">
                 {props.children}
-                <button className="form__submit-btn">{props.submitBtnText}</button>
+                <button
+                    className={`form__submit-btn ${!props.isFormValid ? 'form__submit-btn_inactive' : ''}`}
+                    type="submit"
+                    disabled={!props.isFormValid}
+                >
+                    {props.submitBtnText}
+                </button>
             </form>
             <div className="auth__link-container">
                 <p className="auth__link-note">{props.linkNoteText}</p>
