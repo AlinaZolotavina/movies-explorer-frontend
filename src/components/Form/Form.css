@@ -52,7 +52,7 @@
     margin: 69px 0 16px;
     border-radius: 3px;
     padding: 0;
-    transition: opacity .1s linear .1s;
+    
 }
 
 .form__submit-btn:hover {

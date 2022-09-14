@@ -3,6 +3,7 @@ import Navigation from '../Navigation/Navigation';
 import SearchForm from '../SearchForm/SearchForm';
 import MoviesCardList from '../MoviesCardList/MoviesCardList';
 import Footer from '../Footer/Footer';
+import savedMoviesList from '../../utils/savedMoviesList ';
 
 function SavedMovies(props) {
     return (
@@ -13,7 +14,9 @@ function SavedMovies(props) {
                 />
             </Header>
             <SearchForm />
-            <MoviesCardList />
+            <MoviesCardList
+                movies={savedMoviesList}
+            />
             <Footer />
         </>
     )

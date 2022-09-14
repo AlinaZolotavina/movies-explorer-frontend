@@ -54,6 +54,7 @@ function Profile(props) {
                             className="profile__input"
                             value={name}
                             onChange={handleNameChange}
+                            placeholder="Алина"
                             required
                         />
                     </label>
@@ -64,6 +65,7 @@ function Profile(props) {
                             className="profile__input"
                             value={email}
                             onChange={handleEmailChange}
+                            placeholder="example@email.com"
                             required
                         />
                     </label>

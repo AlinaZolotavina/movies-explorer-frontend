@@ -1,9 +1,10 @@
-import Header from "../Header/Header";
+import Header from '../Header/Header';
 import Navigation from '../Navigation/Navigation';
 import SearchForm from '../SearchForm/SearchForm';
 import MoviesCardList from '../MoviesCardList/MoviesCardList';
 import More from '../More/More';
 import Footer from "../Footer/Footer";
+import moviesList from '../../utils/moviesList';
 
 function Movies(props) {
     return (
@@ -14,7 +15,9 @@ function Movies(props) {
                 />
             </Header>
             <SearchForm />
-            <MoviesCardList />
+            <MoviesCardList
+                movies={moviesList}
+            />
             <More />
             <Footer />
         </>
