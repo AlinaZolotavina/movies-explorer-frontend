@@ -33,7 +33,12 @@
     min-height: 46px;
     margin: 10px 0;
     border-radius: 8px;
+    padding: 0 10px;
     outline: none;
+}
+
+.form__input:focus {
+    background-color: #464646;
 }
 
 .form__input-error {
@@ -61,13 +66,12 @@
 }
 
 .form__submit-btn_inactive {
-    background-color: #C0C4CA;
-    color: #000;
+    opacity: .8;
 }
 
 .form__submit-btn_inactive:hover {
-    opacity: 1;
     cursor: default;
+    opacity: .8;
 }
 
 .auth__link-container {

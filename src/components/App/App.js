@@ -37,10 +37,10 @@ function App() {
                     onMenuClick={handleMenu}
                 />
             </Route>
-            <Route path="/sign-up">
+            <Route path="/signup">
                 <Register/>
             </Route>
-            <Route path="/sign-in">
+            <Route path="/signin">
                 <Login/>
             </Route>
             <Route path="/profile">

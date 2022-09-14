@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 function Form(props) {
     return (
-        <div className="auth">
+        <section className="auth">
             <Link to="/" className="auth__logo-container">
                 <div className="logo"/>
             </Link>
@@ -23,7 +23,7 @@ function Form(props) {
                 <p className="auth__link-note">{props.linkNoteText}</p>
                 <Link to={props.linkPath} className="auth__link">{props.linkText}</Link>
             </div>            
-        </div>
+        </section>
     )
 }
 

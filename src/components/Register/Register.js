@@ -53,13 +53,14 @@ function Register() {
             submitBtnText="Зарегистрироваться"
             linkNoteText="Уже зарегистрированы?"
             linkText="Войти"
-            linkPath="/sign-in"
+            linkPath="/signin"
             isFormValid={isFormValid}
         >
             <label className="form__item">
                 Имя
                 <input
                     className="form__input form__input_type_name"
+                    placeholder="Введите имя"
                     value={name}
                     onChange={handleNameChange}
                     required
@@ -70,6 +71,7 @@ function Register() {
                 E-mail
                 <input
                     className="form__input form__input_type_email"
+                    placeholder="Введите e-mail"
                     value={email}
                     onChange={handleEmailChange}
                     required
@@ -80,6 +82,7 @@ function Register() {
                 Пароль
                 <input
                     className="form__input form__input_type_password"
+                    placeholder="Введите пароль"
                     value={password}
                     onChange={handlePasswordChange}
                     required

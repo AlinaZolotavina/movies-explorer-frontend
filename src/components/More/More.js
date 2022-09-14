@@ -2,9 +2,9 @@ import './More.css';
 
 function More() {
     return (
-        <div className="more">
+        <section className="more">
             <button className="more__btn">Еще</button>
-        </div>
+        </section>
     )
 }
 

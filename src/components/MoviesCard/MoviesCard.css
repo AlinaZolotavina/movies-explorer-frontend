@@ -39,6 +39,11 @@
     width: 20px;
     position: relative;
     cursor: pointer;
+    transition: .1s linear .1s;
+}
+
+.select-btn-container:hover {
+    opacity: .7;
 }
 
 .select-btn {

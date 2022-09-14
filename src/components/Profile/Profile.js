@@ -45,7 +45,7 @@ function Profile(props) {
             >
                 <Navigation />
             </Header>
-            <div className="profile">
+            <section className="profile">
                 <h2 className="profile__title">Привет, Алина!</h2>
                 <form className="profile__form">
                     <label className="profile__form-item">
@@ -76,8 +76,8 @@ function Profile(props) {
                 >
                     Редактировать
                 </button>
-                <Link to="sign-in" className="profile__link">Выйти из аккаунта</Link>
-            </div>
+                <Link to="signin" className="profile__link">Выйти из аккаунта</Link>
+            </section>
         </>
     )
 }

@@ -39,17 +39,18 @@ function Login() {
     return (
         <Form
             name="login"
-            titletText="Рады Видеть!"
+            titletText="Рады видеть!"
             submitBtnText="Войти"
             linkNoteText="Еще не зарегистрированы?"
             linkText="Регистрация"
-            linkPath="/sign-up"
+            linkPath="/signup"
             isFormValid={isFormValid}
         >
             <label className="form__item">
                 E-mail
                 <input
                     className="form__input form__input_type_email"
+                    placeholder="Введите e-mail"
                     value={email}
                     onChange={handleEmailChange}
                     required
@@ -60,6 +61,7 @@ function Login() {
                 Пароль
                 <input
                     className="form__input form__input_type_password"
+                    placeholder="Введите пароль"
                     value={password}
                     onChange={handlePasswordChange}
                     required

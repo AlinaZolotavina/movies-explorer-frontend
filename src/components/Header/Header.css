@@ -52,7 +52,7 @@
     margin: 0 16px 0 0;
     font-size: 13px;
     line-height: 18px;
-    font-weight: 500;
+    font-weight: 400;
     color: #fff;
     text-decoration: none;
     transition: opacity .1s linear .1s
@@ -63,10 +63,14 @@
     opacity: .7;
 }
 
+.header__movies-link_active {
+    font-weight: 500;
+}
+
 .header__saved-movies-link {
     font-size: 13px;
     line-height: 18px;
-    font-weight: 500;
+    font-weight: 400;
     color: #fff;
     text-decoration: none;
     transition: opacity .1s linear .1s
@@ -75,6 +79,10 @@
 .header__saved-movies-link:hover {
     cursor: pointer;
     opacity: .7;
+}
+
+.header__saved-movies-link_acitve {
+    font-weight: 500;
 }
 
 .header__profile-link {
@@ -145,11 +153,15 @@
     .header {
         padding: 18px 30px;
     }
-    
-    .header__nav {
+
+    .header__movies-link {
         display: none;
     }
 
+    .header__saved-movies-link {
+        display: none;
+    }
+    
     .header__profile-link {
         display: none;
     }

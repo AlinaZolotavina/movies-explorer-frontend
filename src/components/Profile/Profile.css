@@ -27,9 +27,16 @@
     display: flex;
     justify-content: space-between;
     font-weight: 500;
-    border-bottom: 1px solid #424242;
     min-height: 31px;
     box-sizing: border-box;
+}
+
+.profile__form-item:first-child {
+    border-bottom: 1px solid #424242;
+}
+
+.profile__form-item:focus-within {
+    border-bottom: 1px solid #fff;
 }
 
 .profile__input {
@@ -42,10 +49,6 @@
     padding: 0;
     color: #fff;
     outline: none;
-}
-
-.profile__input::placeholder {
-    color: #fff;
 }
 
 .profile__input-error {

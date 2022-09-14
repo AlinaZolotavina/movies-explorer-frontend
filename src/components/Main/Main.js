@@ -21,8 +21,8 @@ function Main(props) {
                         <div className="logo"/>
                     </Link>
                     <div className="header__nav">
-                        <Link to="/sign-up" className="header__sign-up-link">Регистрация</Link>
-                        <Link to="/sign-in">
+                        <Link to="/signup" className="header__sign-up-link">Регистрация</Link>
+                        <Link to="/signin">
                             <button className="header__button">Войти</button>
                         </Link>
                     </div>
