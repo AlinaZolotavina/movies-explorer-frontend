@@ -8,6 +8,7 @@ The frontend of service where you can find films on demand and save them in your
 - React JS: function components, hooks (useState, useEffect, useRef, useContext), CurrentUserContext, react-router-dom.
 
 ### [Link to layout](https://drive.google.com/file/d/19YOITyV6S6LVo4Jvli5gEfKOJSlZzD_C/view?usp=sharing)
+### [Link to website](https://movieexplorer.nomoredomains.sbs/)
 
 # movies-explorer-frontend ![russian](./src/images/russian.png?raw=true?raw=true)
 Фронтенд сервиса, где вы можете найти фильмы по запросу и сохранить их в личном кабинете.
