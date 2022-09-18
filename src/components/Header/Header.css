@@ -1,0 +1,182 @@
+.header {
+    background-color: #073042;
+    padding: 18px 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+}
+
+.header_color_black {
+    background-color: #202020;
+}
+
+.logo {
+    height: 38px;
+    width: 38px;
+    background: url(../../images/logo.svg);
+    background-repeat: no-repeat;
+    transition: opacity .1s linear .1s
+}
+
+.logo:hover {
+    cursor: pointer;
+    opacity: .7;
+}
+
+.header__nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 62px;
+}
+
+.header__sign-up-link {
+    margin: 0 30px 0 0;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+}
+
+.header__sign-up-link:hover {
+    cursor: pointer;
+    opacity: .7;
+}
+
+.header__movies-link {
+    margin: 0 16px 0 0;
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 400;
+    color: #fff;
+    text-decoration: none;
+    transition: opacity .1s linear .1s
+}
+
+.header__movies-link:hover {
+    cursor: pointer;
+    opacity: .7;
+}
+
+.header__movies-link_active {
+    font-weight: 500;
+}
+
+.header__saved-movies-link {
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 400;
+    color: #fff;
+    text-decoration: none;
+    transition: opacity .1s linear .1s
+}
+
+.header__saved-movies-link:hover {
+    cursor: pointer;
+    opacity: .7;
+}
+
+.header__saved-movies-link_acitve {
+    font-weight: 500;
+}
+
+.header__profile-link {
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    line-height: 16px;
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+    transition: opacity .1s linear .1s
+}
+
+.header__profile-link:hover {
+    cursor: pointer;
+    opacity: .7;
+    font-size: 14px;
+    line-height: 16px;
+    font-weight: 500;
+}
+
+.header__link-icon {
+    width: 26px;
+    height: 30px;
+    background-image: url(../../images/profile-icon.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #313131;
+    border-radius: 4px;
+}
+
+.header__menu {
+    background: url(../../images/burger-menu.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    border-style: none;
+    width: 44px;
+    height: 44px;
+    transition: opacity .1s linear .1s;
+    display: none;
+}
+
+.header__menu:hover {
+    cursor: pointer;
+    opacity: .7;
+}
+
+.header__button {
+    width: 76px;
+    height: 32px;
+    border-radius: 3px;
+    background-color: #3DDC84;
+    border-style: none;
+    padding: 0;
+    color: #000;
+    transition: opacity .1s linear .1s;
+}
+
+.header__button:hover {
+    cursor: pointer;
+    opacity: .7;
+}
+
+@media screen and (max-width: 768px) {
+    .header {
+        padding: 18px 30px;
+    }
+
+    .header__movies-link {
+        display: none;
+    }
+
+    .header__saved-movies-link {
+        display: none;
+    }
+    
+    .header__profile-link {
+        display: none;
+    }
+
+    .header__menu {
+        display: block;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .header {
+        padding: 18px 14px;
+    }
+
+    .header__nav {
+        font-size: 10px;
+    }
+}
