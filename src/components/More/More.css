@@ -5,6 +5,11 @@
     margin: 50px 70px 80px;
 }
 
+.more_hidden {
+    display: none;
+    opacity: 0;
+}
+
 .more__btn {
     background-color: #2F2F2F;
     border-style: none;
