@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Form from '../Form/Form';
 
-function Login() {
+function Login(props) {
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
     function handleEmailChange(e) {
@@ -35,6 +35,10 @@ function Login() {
         }
     }, [email, password, emailError, passwordError]);
     
+    function handleLogin(e) {
+        e.preventDefault();
+        props.onLogin(email, password);
+    }
 
     return (
         <Form
@@ -45,28 +49,31 @@ function Login() {
             linkText="Регистрация"
             linkPath="/signup"
             isFormValid={isFormValid}
+            onSubmit={handleLogin}
         >
             <label className="form__item">
                 E-mail
                 <input
-                    className="form__input form__input_type_email"
+                    className={`form__input form__input_type_email ${emailError ? 'form__input_error' : ''}`}
                     placeholder="Введите e-mail"
+                    type="text"
                     value={email}
                     onChange={handleEmailChange}
                     required
                 />
-                <span className="form__input-error email-input-error">{emailError}</span>
+                <span className="form__error email-input-error">{emailError}</span>
             </label>
             <label className="form__item">
                 Пароль
                 <input
-                    className="form__input form__input_type_password"
+                    className={`form__input form__input_type_password ${passwordError ? 'form__input_error' : ''}`}
                     placeholder="Введите пароль"
+                    type="password"
                     value={password}
                     onChange={handlePasswordChange}
                     required
                 />
-                <span className="form__input-error password-input-error">{passwordError}</span>
+                <span className="form__error password-input-error">{passwordError}</span>
             </label>
        </Form>
     )
