@@ -71,6 +71,7 @@ class MainApi {
       })
       .then((res) => this._checkResponse(res));
     }
+
 }
 
 const mainApi = new MainApi({

@@ -50,6 +50,7 @@ function Login(props) {
             linkPath="/signup"
             isFormValid={isFormValid}
             onSubmit={handleLogin}
+            isSendingReq={props.isSendingReq}
         >
             <label className="form__item">
                 E-mail
@@ -60,6 +61,7 @@ function Login(props) {
                     value={email}
                     onChange={handleEmailChange}
                     required
+                    disabled={props.isSendingReq}
                 />
                 <span className="form__error email-input-error">{emailError}</span>
             </label>
@@ -72,6 +74,7 @@ function Login(props) {
                     value={password}
                     onChange={handlePasswordChange}
                     required
+                    disabled={props.isSendingReq}
                 />
                 <span className="form__error password-input-error">{passwordError}</span>
             </label>

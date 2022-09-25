@@ -18,9 +18,9 @@ function Form(props) {
                 <button
                     className={`form__submit-btn ${!props.isFormValid ? 'form__submit-btn_inactive' : ''}`}
                     type="submit"
-                    disabled={!props.isFormValid}
+                    disabled={!props.isFormValid || props.isSendingReq}
                 >
-                    {props.submitBtnText}
+                    {props.isSendingReq ? 'Загрузка...' : props.submitBtnText}
                 </button>
             </form>
             <div className="auth__link-container">

@@ -113,6 +113,12 @@
     }
 }
 
+@media screen and (max-width: 400px) {
+    .about-me__photo {
+        width: 100%;
+    }
+}
+
 @media screen and (max-width: 320px) {
     .about-me {
         padding: 70px 14px;

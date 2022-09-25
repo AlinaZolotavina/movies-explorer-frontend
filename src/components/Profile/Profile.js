@@ -1,10 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Profile.css';
 import Header from '../Header/Header';
 import Navigation from '../Navigation/Navigation';
+import { CurrentUserContext } from '../../contexts/CurrentUserContext';
 
 function Profile(props) {
+    const currentUser = useContext(CurrentUserContext);
+    useEffect(() => {
+        setName(currentUser.name);
+        setEmail(currentUser.email);
+    }, [currentUser]);
+
     const [name, setName] = useState('');
     const [nameError, setNameError] = useState('');
     function handleNameChange(e) {
@@ -29,54 +36,92 @@ function Profile(props) {
         setEmail(e.target.value);
     }
 
+    function handleSubmit(e) {
+        e.preventDefault();
+        props.onUpdateUser({
+            name,
+            email,
+        });
+    }
+
     const [isFormValid, setIsFormValid] = useState(false);
     useEffect(() => {
-        if(name && email && !nameError && !emailError) {
-            setIsFormValid(true);
-        } else {
+        if(nameError && emailError) {
             setIsFormValid(false);
+        } else {
+            setIsFormValid(true);
         }
-    }, [name, email, nameError, emailError]);
+    }, [nameError, emailError]);
+
+    function handleLogout() {
+        props.onLogout(currentUser.email)
+    }
+
+    useEffect(() => {
+        if(currentUser.name === name && currentUser.email === email) {
+            setIsFormValid(false);
+        } else {
+            setIsFormValid(true);
+        }
+    }, [currentUser.name, currentUser.email, name, email])
 
     return (
         <>
-            <Header
-                class="header header_color_black"
-            >
-                <Navigation />
+            <Header class="header header_color_black">
+                <Navigation
+                    onClick={props.onMenuClick}
+                />
             </Header>
             <section className="profile">
-                <h2 className="profile__title">Привет, Алина!</h2>
-                <form className="profile__form">
-                    <label className="profile__form-item">
-                        Имя
-                        <input
-                            className="profile__input"
-                            value={name}
-                            onChange={handleNameChange}
-                            placeholder="Алина"
-                            required
-                        />
-                    </label>
-                    <span className="profile__input-error">{nameError}</span>
-                    <label className="profile__form-item">
-                        E-mail
-                        <input
-                            className="profile__input"
-                            value={email}
-                            onChange={handleEmailChange}
-                            placeholder="example@email.com"
-                            required
-                        />
-                    </label>
-                    <span className="profile__input-error">{emailError}</span>
+                <h2 className="profile__title">{`Привет, ${currentUser.name}`}</h2>
+                <form className="profile__form" onSubmit={handleSubmit}>
+                    <fieldset className="profile__form-container">
+                        <label className="profile__form-item">
+                            Имя
+                            <input
+                                id="profile-name"
+                                className="profile__input"
+                                type='text'
+                                name="name"
+                                value={name || ""}
+                                onChange={handleNameChange}
+                                placeholder="Введите имя"
+                                required
+                                disabled={props.isSendingReq}
+                            />
+                        </label>
+                        <span className="profile__input-error">{nameError}</span>
+                        <label className="profile__form-item">
+                            E-mail
+                            <input
+                                id="profile-email"
+                                className="profile__input"
+                                type='text'
+                                name="email"
+                                value={email || ""}
+                                onChange={handleEmailChange}
+                                placeholder="Введите E-mail"
+                                required
+                                disabled={props.isSendingReq}
+                            />
+                        </label>
+                        <span className="profile__input-error">{emailError}</span>
+                    </fieldset>
+                    <button
+                        className={`profile__edit-btn ${!isFormValid || props.isSendingReq ? 'profile__edit-btn_inactive' : ''}`}
+                        type="submit"
+                        disabled={!isFormValid || props.isSendingReq}
+                    >
+                        {props.isSendingReq ? 'Загрузка' : 'Редактировать'}
+                    </button>
                 </form>
-                <button
-                    className={`profile__edit-btn ${!isFormValid ? 'profile__edit-btn_inactive' : ''}`}
+                <Link
+                    to="/signin"
+                    onClick={handleLogout}
+                    className="profile__link"
                 >
-                    Редактировать
-                </button>
-                <Link to="signin" className="profile__link">Выйти из аккаунта</Link>
+                    Выйти из аккаунта
+                </Link>
             </section>
         </>
     )

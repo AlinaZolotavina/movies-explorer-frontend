@@ -1,8 +1,17 @@
 .search {
     max-width: 1140px;
-    padding: 80px 0 39px;
+    padding: 40px 0 39px;
     margin: 0 70px;
     border-bottom: 1px solid #424242;
+}
+
+.search__error {
+    font-size: 20px;
+    line-height: 24px;
+    font-weight: 400;
+    text-align: center;
+    margin: 0 0 16px;
+    height: 24px;
 }
 
 .search__form {
@@ -42,6 +51,15 @@
 .search__submit-btn:hover {
     cursor: pointer;
     opacity: .7;
+}
+
+.search__submit-btn_disable {
+    opacity: .8;
+}
+
+.search__submit-btn_disable:hover {
+    cursor: default;
+    opacity: .8;
 }
 
 .search__icon {
@@ -84,7 +102,7 @@
     box-sizing: border-box;
     width: 36px;
     height: 20px;
-    background-color: #3DDC84;
+    background-color: #EBEBEB;
     border-radius: 20px;
     vertical-align: top;
     transition: background-color .2s linear .1s;;
@@ -101,8 +119,8 @@
 	position: absolute;
 	top: 2px;
     bottom: 2px;
-	right: 2px;
-    left:18px;
+	right: 18px;
+    left: 2px;
 	display: inline-block;
 	width: 16px;	
 	height: 16px;
@@ -112,13 +130,13 @@
 }
 
 .search__checkbox input[type="checkbox"]:checked + .search__checkbox-switch::before {
-    right: 18px;
-    left: 2px;
+    right: 2px;
+    left: 18px;
     background-color: #F5F5F5;
 }
 
 .search__checkbox input[type="checkbox"]:checked + .search__checkbox-switch {
-    background-color: #EBEBEB;
+    background-color: #3DDC84;
 }
 
 .search__checkbox-note {
@@ -131,6 +149,12 @@
 @media screen and (max-width: 768px) {
     .search {
         margin: 0 30px;
+    }
+
+    .search__error {
+        font-size: 14px;
+        line-height: 17px;
+        height: 17px;
     }
 }
 

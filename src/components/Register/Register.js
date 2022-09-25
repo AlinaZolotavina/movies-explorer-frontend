@@ -61,6 +61,7 @@ function Register(props) {
             linkPath="/signin"
             isFormValid={isFormValid}
             onSubmit={handleRegister}
+            isSendingReq={props.isSendingReq}
         >
             <label className="form__item">
                 Имя
@@ -70,6 +71,7 @@ function Register(props) {
                     value={name}
                     onChange={handleNameChange}
                     required
+                    disabled={props.isSendingReq}
                 />
                 <span className="form__error name-input-error">{nameError}</span>
             </label>
@@ -82,6 +84,7 @@ function Register(props) {
                     value={email}
                     onChange={handleEmailChange}
                     required
+                    disabled={props.isSendingReq}
                 />
                 <span className="form__error email-input-error">{emailError}</span>
             </label>
@@ -94,6 +97,7 @@ function Register(props) {
                     value={password}
                     onChange={handlePasswordChange}
                     required
+                    disabled={props.isSendingReq}
                 />
                 <span className="form__error password-input-error">{passwordError}</span>
             </label>

@@ -1,7 +1,7 @@
 .not-found {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
 }
 
 .not-found__container {
@@ -33,6 +33,19 @@
     text-decoration: none;
     text-align: center;
     margin: 184px 0 60px;
+    border-style: none;
+    background-color: transparent;
+    width: max-content;
+}
+
+.not-found__link:hover {
+    cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+    .not-found__title {
+        margin: 408px 0 5px;
+    }
 }
 
 @media screen and (max-width: 320px) {
