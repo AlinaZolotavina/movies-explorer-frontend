@@ -15,6 +15,23 @@ import ProtectedRoute from '../ProtectedRoute/ProtectedRoute';
 import moviesApi from "../../utils/MoviesApi";
 import mainApi from '../../utils/MainApi';
 import * as auth from '../../utils/auth.js';
+import {
+    INTERNAL_SERVER_ERROR_MSG,
+    DEFAULT_ERROR_MSG,
+    NOT_FOUND_ERROR_MSG,
+    USER_NOT_FOUND_ERROR_MSG,
+    MOVIE_NOT_FOUND_ERROR_MSG,
+    AUTHORIZATION_FAILED_ERROR_MSG,
+    UNAUTHORIZED_ERROR_MSG,
+    BAD_REQUEST_ERROR_MSG,
+    CONFLICT_SIGNUP_EMAIL_ERROR_MSG,
+    CONFLICT_UPDATE_EMAIL_ERROR_MSG,
+    FORBIDDEN_ERROR_MSG,
+    SAVE_MOVIE_ERROR_MSG,
+    DELETE_MOVIE_ERROR_MSG,
+    SUCCESSFUL_SIGNUP_MSG,
+    SUCCESSFUL_PROFILE_UPDATE_MSG,
+} from '../../utils/constants';
 
 function App() {
     const [currentUser, setCurrentUser] = useState({});
@@ -26,26 +43,27 @@ function App() {
     const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-
     const [isLoading, setIsLoading] = useState(false);
-    const [moviesToRender, setMoviesToRender] = useState([]);
-    const [savedMovies, setSavedMovies] = useState([]);
-    const [errorText, setErrorText] = useState('');
-    const [isShortMoviesOn, setIsShortMoviesOn] = useState(false);
-    const [currentCardsNumber, setCurrentCardsNumber] = useState(0);
-    const [cardsToAdd, setCardsToAdd] = useState(0);
+    const [isSendingReq, setIsSendingReq] = useState(false);
 
     const [isModalOpen, setIsModalpOpen] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
+
     let movies = localStorage.getItem('movies');
     const query = localStorage.getItem('query');
+    const [inputValue, setInputValue] = useState('');
     let foundMovies = JSON.parse(query)?.foundMovies || [];
     let foundShortMovies = JSON.parse(query)?.foundShortMovies || [];
+    const [moviesToRender, setMoviesToRender] = useState([]);
     const [savedMoviesToRender, setSavedMoviesToRender] = useState([]);
-    const [isSendingReq, setIsSendingReq] = useState(false);
+    const [savedMovies, setSavedMovies] = useState([]);
+    const [errorText, setErrorText] = useState('');
+    const [isShortMoviesOn, setIsShortMoviesOn] = useState(false);
+    const [currentCardsNumber, setCurrentCardsNumber] = useState(0);
+    const [cardsToAdd, setCardsToAdd] = useState(0);    
 
-    // if logged in, get user and saved movies data from main api and movies data from movies api
+    // if logged in, get user and set current user
     useEffect(() => {
         if(loggedIn) {
             mainApi.getCurrentUser()
@@ -57,10 +75,7 @@ function App() {
         }
     }, [loggedIn]);
 
-    // function getInitialData() {
-    //     return Promise.all([mainApi.getCurrentUser(), moviesApi.getMovies()]);
-    // }
-
+    // check token
     useEffect(() => {
         if(!loggedIn) {
             checkToken();
@@ -77,15 +92,15 @@ function App() {
                     history.push('/movies');
                 } else {
                     history.push(location.pathname);
-                }
-                // history.push('/movies');
+                };
                 setCurrentUser(userData);
             })
             .catch((err) => {
                 console.log(err);
-            })
-    }
+            });
+    };
 
+    // get saved movies
     useEffect(() => {
         if(loggedIn) {
             mainApi
@@ -98,16 +113,12 @@ function App() {
                     setSavedMoviesToRender(foundSavedMovies);
                 })
                 .catch((err) => {
-                    console.log(err)
+                    console.log(err);
                 });
         }
         
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentUser._id, loggedIn, location]);
-
-    // function goToPreviousPage () {
-    //     history.goBack();
-    // }
 
     // render movies cards and add more depending on the screen width 
     const updateDemensions = () => {
@@ -116,15 +127,16 @@ function App() {
             resizeTimeout = setTimeout(function() {
                 resizeTimeout = null;
                 setScreenWidth(window.innerWidth);
-            }, 150)
-        }
-    }
+            }, 150);
+        };
+    };
+
     useEffect(() => {
         window.addEventListener('resize', updateDemensions);
         return () => window.removeEventListener('resize', updateDemensions);
-    }, [])
+    }, []);
 
-    useEffect(() => {
+    const calculateMoviesCount = () => {
         let initialCardsNumber;
         if(screenWidth >= 1240) {
             initialCardsNumber = 12;
@@ -141,48 +153,58 @@ function App() {
         if (currentCardsNumber < initialCardsNumber) {
             setCurrentCardsNumber(initialCardsNumber);
         }
+    }
+
+    useEffect(() => {
+        calculateMoviesCount();
     }, [currentCardsNumber, screenWidth]);
 
     function showMoreMovies() {
         setCurrentCardsNumber((prev) => prev + cardsToAdd);
-    }
+    };
 
-    // signup, signin, signout, update user
     function handleRegister(name, email, password) {
         setIsSendingReq(true);
         auth.register(name, email, password)
             .then((res) => {
                 if(res) {
-                    setLoggedIn(true);
-                    history.push('/movies');
-                    setCurrentUser(res.user);
+                    handleLogin(email, password);
                     setIsModalpOpen(true);
                     setIsSuccess(true);
-                    setModalMessage('Вы успешно зарегистрировались');
-                }
+                    setModalMessage(SUCCESSFUL_SIGNUP_MSG);
+                };
             })
             .catch((err) => {
-                console.log(err);
+                if(err.status === 400) {
+                    handleError(BAD_REQUEST_ERROR_MSG);
+                } else if (err.status === 409) {
+                    handleError(CONFLICT_SIGNUP_EMAIL_ERROR_MSG);
+                } else {
+                    handleError(DEFAULT_ERROR_MSG);
+                };
             })
             .finally(() => setIsSendingReq(false));
-    }
+    };
 
     function handleLogin(email, password) {
         setIsSendingReq(true);
         auth.authorize(email, password)
             .then((data) => {
                 setLoggedIn(true);
-                setCurrentUser(data.user)
+                setCurrentUser(data.user);
                 history.push('/movies');
             })
             .catch((err) => {
-                console.log(err);
-                setIsModalpOpen(true);
-                setIsSuccess(false);
-                setModalMessage('Ошибка авторизации');
+                if(err.status === 404) {
+                    handleError(USER_NOT_FOUND_ERROR_MSG);
+                } else if(err.status === 401) {
+                    handleError(AUTHORIZATION_FAILED_ERROR_MSG);
+                } else {
+                    handleError(DEFAULT_ERROR_MSG);
+                };
             })
             .finally(() => setIsSendingReq(false));
-    }
+    };
 
     function handleLogout(email) {
         auth.logout(email)
@@ -198,12 +220,15 @@ function App() {
                 setInputValue('');
             })
             .catch((err) => {
-                console.log(err);
-                setIsSuccess(false);
-                setIsModalpOpen(true);
-                setModalMessage('Что-то пошло не так...');
-            })
-    }
+                if(err.status === 404) {
+                    handleError(USER_NOT_FOUND_ERROR_MSG);
+                } else if(err.status === 401) {
+                    handleError(UNAUTHORIZED_ERROR_MSG);
+                } else {
+                    handleError(DEFAULT_ERROR_MSG);
+                };
+            });
+    };
 
     function handleUpdateUser(info) {
         setIsSendingReq(true);
@@ -213,20 +238,21 @@ function App() {
                 setCurrentUser(newInfo.user);
                 setIsSuccess(true);
                 setIsModalpOpen(true);
-                setModalMessage('Данные обновлены')
+                setModalMessage(SUCCESSFUL_PROFILE_UPDATE_MSG);
             })
             .catch((err) => {
-                console.log(err);
-                if(err === 'Ошибка: 409') {
-                    setIsModalpOpen(true);
-                    setModalMessage('Пользователь с таким E-mail уже существует');                  
+                if(err.status === 409) {
+                    handleError(CONFLICT_UPDATE_EMAIL_ERROR_MSG);                  
+                } else if(err.status === 404) {
+                    handleError(USER_NOT_FOUND_ERROR_MSG); 
+                } else if(err.status === 400) {
+                    handleError(BAD_REQUEST_ERROR_MSG);
                 } else {
-                    setIsModalpOpen(true);
-                    setModalMessage('Что-то пошло не так...');  
-                }
+                    handleError(DEFAULT_ERROR_MSG);  
+                };
             })
             .finally(() => setIsSendingReq(false));
-    }
+    };
 
     // modal
     function closeModal() {
@@ -246,28 +272,24 @@ function App() {
     // menu 
     function handleMenu() {
         setIsMenuOpen(!isMenuOpen);
-    }
+    };
 
     function closeMenu() {
         setIsMenuOpen(false);
-    }
+    };
 
     // movies search
-    const [inputValue, setInputValue] = useState('');
-
     useEffect(() => {
         if(query) {
             setIsShortMoviesOn(JSON.parse(query)?.isShortMovies);
             setInputValue(JSON.parse(query)?.input);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
         if(!errorText) {
             isShortMoviesOn ? setMoviesToRender(foundShortMovies) : setMoviesToRender(foundMovies);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isShortMoviesOn, errorText]);
 
     useEffect(() => {
@@ -284,7 +306,7 @@ function App() {
         }
         window.addEventListener('beforeunload', removeMovies);
         return () => window.removeEventListener('beforeunload', removeMovies);
-    }, [])
+    }, []);
 
     async function handleMoviesSearch(input, isShortMovies) {
         const keyWord = new RegExp(input, "gi");
@@ -299,7 +321,12 @@ function App() {
                 .then(() => {
                     movies = localStorage.getItem('movies');
                 })
-        }
+                .catch(err => {
+                    console.log(err);
+                    setErrorText(INTERNAL_SERVER_ERROR_MSG);
+                    setIsLoading(false);
+                });
+        };
 
         const foundMovies = JSON.parse(movies).filter((movie) => {
             return (keyWord.test(movie.nameRU) || keyWord.test(movie.nameEN));
@@ -318,28 +345,29 @@ function App() {
         localStorage.setItem('query', JSON.stringify(query));
 
         if(isShortMovies) {
-            console.log(foundShortMovies);
             setMoviesToRender(foundShortMovies);
             if(foundShortMovies.length === 0) {
-                setErrorText('Ничего не найдено')
-                setIsLoading(false);
-                // setCurrentCardsNumber(0);
-                // setCardsToAdd(0);
-            }
-        } else {
-            console.log(foundMovies);
-            setMoviesToRender(foundMovies);
-            if(foundMovies.length === 0) {
-                setErrorText('Ничего не найдено')
+                setErrorText(NOT_FOUND_ERROR_MSG);
                 setIsLoading(false);
             } else {
                 setErrorText('');
                 setIsLoading(false);
-                setCurrentCardsNumber(currentCardsNumber);
-                setCardsToAdd(cardsToAdd);
-            }
-        }
-    }
+                setCurrentCardsNumber(0);
+                calculateMoviesCount();
+            };
+        } else {
+            setMoviesToRender(foundMovies);
+            if(foundMovies.length === 0) {
+                setErrorText(NOT_FOUND_ERROR_MSG)
+                setIsLoading(false);
+            } else {
+                setErrorText('');
+                setIsLoading(false);
+                setCurrentCardsNumber(0);
+                calculateMoviesCount();
+            };
+        };
+    };
 
     function handleSavedMoviesSearch(input, isShortMovies) {
         setIsLoading(true);
@@ -356,46 +384,48 @@ function App() {
         if(isShortMovies) {
             setSavedMoviesToRender(foundShortMovies);
             if(foundShortMovies.length === 0) {
-                setErrorText('Ничего не найдено');
-                setIsLoading(false);
-                setCurrentCardsNumber(0);
-                setCardsToAdd(0);
-            }
-        } else {
-            setSavedMoviesToRender(foundMovies);
-            if(foundMovies.length === 0) {
-                setErrorText('Ничего не найдено');
+                setErrorText(NOT_FOUND_ERROR_MSG);
                 setIsLoading(false);
             } else {
                 setErrorText('');
                 setIsLoading(false);
                 setCurrentCardsNumber(0);
-                setCardsToAdd(0);
-            }
-        }
-    }
+                calculateMoviesCount();
+            };
+        } else {
+            setSavedMoviesToRender(foundMovies);
+            if(foundMovies.length === cardsToAdd) {
+                setErrorText(NOT_FOUND_ERROR_MSG);
+                setIsLoading(false);
+            } else {
+                setErrorText('');
+                setIsLoading(false);
+                setCurrentCardsNumber(0);
+                calculateMoviesCount();
+            };
+        };
+    };
 
     function handleShortMoviesOn() {
         setIsShortMoviesOn(!isShortMoviesOn);
-    }
+    };
 
-    // save and delete movie
-    // доделать обработку ошибок
     function handleSaveMovie(data) {
         mainApi
         .saveMovie(data)
         .then((newSavedMovie) => {
             setSavedMovies([...savedMovies, newSavedMovie]);
         })
-        .catch((err) => console.log(err));
-    }
+        .catch(err => {
+            handleError(SAVE_MOVIE_ERROR_MSG);  
+        });
+    };
 
-    // доделать обработку ошибок
     function handleRemoveMovie(movieId) {
         const findId = (id, arr) => {
             const searchMovie = arr.find(item => item.movieId === id);
             return searchMovie._id;
-        }
+        };
 
         const  idToDelete = findId(movieId, savedMovies);
         
@@ -405,8 +435,22 @@ function App() {
                 setSavedMovies(previousState => previousState.filter((savedMovie) => savedMovie._id !== idToDelete));
                 setSavedMoviesToRender(previousState => previousState.filter((savedMovie) => savedMovie._id !== idToDelete));
             })
-            .catch(err => console.log(err));
-    }
+            .catch(err => {
+                if(err.status === 404) {
+                    handleError(MOVIE_NOT_FOUND_ERROR_MSG)
+                } else if(err.status === 403) {
+                    handleError(FORBIDDEN_ERROR_MSG)
+                } else {
+                    handleError(DELETE_MOVIE_ERROR_MSG); 
+                };
+            });
+    };
+
+    function handleError(errorText) {
+        setIsSuccess(false);
+        setIsModalpOpen(true);
+        setModalMessage(errorText); 
+    };
 
     return (
         <CurrentUserContext.Provider value={currentUser}>
