@@ -55,13 +55,18 @@ function App() {
     const [inputValue, setInputValue] = useState('');
     let foundMovies = JSON.parse(query)?.foundMovies || [];
     let foundShortMovies = JSON.parse(query)?.foundShortMovies || [];
+    let foundSavedMovies = [];
+    let foundShortSavedMovies = [];
     const [moviesToRender, setMoviesToRender] = useState([]);
     const [savedMoviesToRender, setSavedMoviesToRender] = useState([]);
     const [savedMovies, setSavedMovies] = useState([]);
+    const [savedShortMovies, setSavedShortMovies] = useState([]);
     const [errorText, setErrorText] = useState('');
-    const [isShortMoviesOn, setIsShortMoviesOn] = useState(false);
+    const [moviesCheckbox, setMoviesCheckbox] = useState(false);
+    const [savedMoviesCheckbox, setSavedMoviesCheckbox] = useState(false);
     const [currentCardsNumber, setCurrentCardsNumber] = useState(0);
-    const [cardsToAdd, setCardsToAdd] = useState(0);    
+    const [cardsToAdd, setCardsToAdd] = useState(0);
+    const [searchError, setSearchError] = useState('Нужно ввести ключевое слово');
 
     // if logged in, get user and set current user
     useEffect(() => {
@@ -109,8 +114,12 @@ function App() {
                     const foundSavedMovies = movies.filter((movie) => {
                         return movie.owner === currentUser._id;
                     })
+                    const foundSavedShortMovies = movies.filter((movie) => {
+                        return movie.duration <= 40;
+                    })
                     setSavedMovies(foundSavedMovies);
-                    setSavedMoviesToRender(foundSavedMovies);
+                    setSavedShortMovies(foundSavedShortMovies);
+                    // setSavedMoviesToRender(foundSavedMovies);
                 })
                 .catch((err) => {
                     console.log(err);
@@ -118,7 +127,7 @@ function App() {
         }
         
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentUser._id, loggedIn, location]);
+    }, [currentUser._id, loggedIn]);
 
     // render movies cards and add more depending on the screen width 
     const updateDemensions = () => {
@@ -214,7 +223,7 @@ function App() {
                 setCurrentUser({});
                 localStorage.removeItem('movies');
                 localStorage.removeItem('query');
-                setIsShortMoviesOn(false);
+                setMoviesCheckbox(false);
                 setMoviesToRender([]);
                 setSavedMovies([]);
                 setInputValue('');
@@ -281,34 +290,51 @@ function App() {
     // movies search
     useEffect(() => {
         if(query) {
-            setIsShortMoviesOn(JSON.parse(query)?.isShortMovies);
+            setMoviesCheckbox(JSON.parse(query)?.moviesCheckbox);
             setInputValue(JSON.parse(query)?.input);
         }
     }, []);
-
+    
     useEffect(() => {
         if(!errorText) {
-            isShortMoviesOn ? setMoviesToRender(foundShortMovies) : setMoviesToRender(foundMovies);
+            moviesCheckbox ? setMoviesToRender(foundShortMovies) : setMoviesToRender(foundMovies);
         }
-    }, [isShortMoviesOn, errorText]);
+    }, [moviesCheckbox, errorText]);
 
     useEffect(() => {
-        if(query) {
+        if(!searchError) {
+            savedMoviesCheckbox ? setSavedMoviesToRender(foundShortSavedMovies) : setSavedMoviesToRender(foundSavedMovies);
+        } 
+        if(searchError) {
+            console.log(`checkbox: ${savedMoviesCheckbox}`);
+            if(savedMoviesCheckbox) {
+                console.log('short');
+                setSavedMoviesToRender(savedShortMovies);
+            } else {
+                console.log('all');
+                setSavedMoviesToRender(savedMovies);
+            }
+            
+        }
+    }, [savedMoviesCheckbox, searchError, location]);
+
+    useEffect(() => {
+        if(query && location.pathname === '/movies') {
             const queryData = JSON.parse(query);
-            queryData.isShortMovies = isShortMoviesOn;
+            queryData.moviesCheckbox = moviesCheckbox;
             localStorage.setItem('query', JSON.stringify(queryData));
         }
-    }, [isShortMoviesOn, query]);
+    }, [query, moviesCheckbox, inputValue, location.pathname]);
 
-    useEffect(() => {
-        function removeMovies() {
-            localStorage.removeItem('movies');
-        }
-        window.addEventListener('beforeunload', removeMovies);
-        return () => window.removeEventListener('beforeunload', removeMovies);
-    }, []);
+    // useEffect(() => {
+    //     function removeMovies() {
+    //         localStorage.removeItem('movies');
+    //     }
+    //     window.addEventListener('beforeunload', removeMovies);
+    //     return () => window.removeEventListener('beforeunload', removeMovies);
+    // }, []);
 
-    async function handleMoviesSearch(input, isShortMovies) {
+    async function handleMoviesSearch(input, moviesCheckbox) {
         const keyWord = new RegExp(input, "gi");
 
         if(!movies) {
@@ -340,11 +366,11 @@ function App() {
             foundMovies,
             foundShortMovies,
             input,
-            isShortMovies,
+            moviesCheckbox,
         };
         localStorage.setItem('query', JSON.stringify(query));
 
-        if(isShortMovies) {
+        if(moviesCheckbox) {
             setMoviesToRender(foundShortMovies);
             if(foundShortMovies.length === 0) {
                 setErrorText(NOT_FOUND_ERROR_MSG);
@@ -369,45 +395,53 @@ function App() {
         };
     };
 
-    function handleSavedMoviesSearch(input, isShortMovies) {
+    function handleSavedMoviesSearch(input, savedMoviesCheckbox) {
         setIsLoading(true);
         const keyWord = new RegExp(input, "gi");
 
-        const foundMovies = savedMovies.filter((movie) => {
+        const foundSavedMovies = savedMovies.filter((movie) => {
             return (keyWord.test(movie.nameRU) || keyWord.test(movie.nameEN));
         });
 
-        const foundShortMovies = foundMovies.filter((movie) => {
+        const foundShortSavedMovies = foundSavedMovies.filter((movie) => {
             return movie.duration <= 40;
         });
 
-        if(isShortMovies) {
-            setSavedMoviesToRender(foundShortMovies);
+        if(savedMoviesCheckbox) {
+            console.log('checkbox on');
+            setSavedMoviesToRender(foundShortSavedMovies);
             if(foundShortMovies.length === 0) {
                 setErrorText(NOT_FOUND_ERROR_MSG);
                 setIsLoading(false);
             } else {
                 setErrorText('');
                 setIsLoading(false);
+                console.log(foundShortSavedMovies);
                 setCurrentCardsNumber(0);
                 calculateMoviesCount();
             };
         } else {
-            setSavedMoviesToRender(foundMovies);
+            console.log('checkbox off');
+            setSavedMoviesToRender(foundSavedMovies);
             if(foundMovies.length === cardsToAdd) {
                 setErrorText(NOT_FOUND_ERROR_MSG);
                 setIsLoading(false);
             } else {
                 setErrorText('');
                 setIsLoading(false);
+                console.log(foundSavedMovies);
                 setCurrentCardsNumber(0);
                 calculateMoviesCount();
             };
         };
     };
 
-    function handleShortMoviesOn() {
-        setIsShortMoviesOn(!isShortMoviesOn);
+    function handleMoviesCheckbox() {
+        setMoviesCheckbox(!moviesCheckbox);
+    };
+
+    function handleSavedMoviesCheckbox() {
+        setSavedMoviesCheckbox(!savedMoviesCheckbox);
     };
 
     function handleSaveMovie(data) {
@@ -467,14 +501,16 @@ function App() {
                     savedMovies={savedMovies}
                     onGetMovies={handleMoviesSearch}
                     errorText={errorText}
-                    onShortMovies={handleShortMoviesOn}
-                    checked={isShortMoviesOn}
+                    onShortMovies={handleMoviesCheckbox}
+                    checked={moviesCheckbox}
                     cardsQuantity={currentCardsNumber}
                     onSaveMovie={handleSaveMovie}
                     onRemoveMovie={handleRemoveMovie}
                     onShowMore={showMoreMovies}
                     isLoading={isLoading}
                     lastInput={inputValue}
+                    searchError={searchError}
+                    setSearchError={setSearchError}
                 />
                 <ProtectedRoute
                     path="/saved-movies"
@@ -485,10 +521,12 @@ function App() {
                     savedMovies={savedMovies}
                     onGetMovies={handleSavedMoviesSearch}
                     errorText={errorText}
-                    onShortMovies={handleShortMoviesOn}
-                    checked={isShortMoviesOn}
+                    onShortMovies={handleSavedMoviesCheckbox}
+                    checked={savedMoviesCheckbox}
                     onRemoveMovie={handleRemoveMovie}
                     isLoading={isLoading}
+                    searchError={searchError}
+                    setSearchError={setSearchError}
                 />
                 <Route path="/signup">
                     <Register

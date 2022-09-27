@@ -17,8 +17,10 @@ function SavedMovies(props) {
                 onGetMovies={props.onGetMovies}
                 onChange={props.onShortMovies}
                 checked={props.checked}
+                searchError={props.searchError}
+                setSearchError={props.setSearchError}
             />
-            {props.isLoadin ? (
+            {props.isLoading ? (
                 <Preloader />
             ) : (
                 <MoviesCardList

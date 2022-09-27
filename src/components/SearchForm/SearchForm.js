@@ -1,45 +1,57 @@
 import { useEffect, useState } from 'react';
-// import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import './SearchForm.css';
 
 function SearchForm(props) {
+    const location = useLocation();
+    const query = JSON.parse(localStorage.getItem('query'));
+
     useEffect(() => {
-        if(props.lastInput) {
-            setInputValue(props.lastInput);
+        if(query.input && location.pathname === '/movies') {
+            setInputValue(query.input);
+ 
         }
-    }, [props.lastInput])
+    }, [query.input, location.pathname]);
+
+
+
+    // useEffect(() => {
+    //     if(query.isShortMovies && location.pathname === '/movies') {
+    //         props.setChecked(query.isShortMovies);
+    //     }
+    // })
 
     const [inputValue, setInputValue] = useState('');
-    const [error, setError] = useState('Нужно ввести ключевое слово');
     const [isFormValid, setIsFormValid] = useState(false);
-    // const location = useLocation();
 
     function handleInputChange(e) {
         setInputValue(e.target.value);
         if(e.target.value.length === 0) {
-            setError('Нужно ввести ключевое слово');
+            props.setSearchError('Нужно ввести ключевое слово');
         } else {
-            setError('');
+            props.setSearchError('');
         }
     }
 
     function handleSubmit(e) {
         e.preventDefault();
         props.onGetMovies(inputValue, props.checked);
-        setError('');
+        props.setSearchError('');
     }
 
     useEffect(() => {
-        if(inputValue && !error) {
-            setIsFormValid(true);
-        } else {
+        if(!inputValue || !query.input) {
             setIsFormValid(false);
+            props.setSearchError('Нужно ввести ключевое слово');
+        } else {
+            setIsFormValid(true);
+            props.setSearchError('');
         }
-    }, [inputValue, error]);
+    }, [inputValue, query.input]);
 
     return (
         <section className="search">
-            <div className="search__error">{error}</div>
+            <div className="search__error">{props.searchError}</div>
             <form className="search__form" onSubmit={handleSubmit}>
                 <label className="search__field">
                     <input
