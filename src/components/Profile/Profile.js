@@ -26,7 +26,7 @@ function Profile(props) {
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
     function handleEmailChange(e) {
-        const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}$/i;
+        const emailRegex = /^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/i;
         const isEmailValid = emailRegex.test(e.target.value);
         if (!isEmailValid) {
             setEmailError('Пожалуйста, введите корректный E-mail');

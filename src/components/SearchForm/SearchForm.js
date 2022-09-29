@@ -4,33 +4,20 @@ import './SearchForm.css';
 
 function SearchForm(props) {
     const location = useLocation();
-    const query = JSON.parse(localStorage.getItem('query'));
 
     useEffect(() => {
-        if(query.input && location.pathname === '/movies') {
-            setInputValue(query.input);
- 
+        if(props.lastInput && location.pathname === '/movies') {
+            setInputValue(props.lastInput); 
+        } else {
+            return;
         }
-    }, [query.input, location.pathname]);
-
-
-
-    // useEffect(() => {
-    //     if(query.isShortMovies && location.pathname === '/movies') {
-    //         props.setChecked(query.isShortMovies);
-    //     }
-    // })
+    }, [props.lastInput, location.pathname]);
 
     const [inputValue, setInputValue] = useState('');
     const [isFormValid, setIsFormValid] = useState(false);
 
     function handleInputChange(e) {
         setInputValue(e.target.value);
-        if(e.target.value.length === 0) {
-            props.setSearchError('Нужно ввести ключевое слово');
-        } else {
-            props.setSearchError('');
-        }
     }
 
     function handleSubmit(e) {
@@ -40,14 +27,14 @@ function SearchForm(props) {
     }
 
     useEffect(() => {
-        if(!inputValue || !query.input) {
+        if(!inputValue) {
             setIsFormValid(false);
             props.setSearchError('Нужно ввести ключевое слово');
         } else {
             setIsFormValid(true);
             props.setSearchError('');
         }
-    }, [inputValue, query.input]);
+    }, [inputValue]);
 
     return (
         <section className="search">

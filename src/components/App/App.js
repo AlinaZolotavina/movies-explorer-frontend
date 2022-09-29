@@ -32,6 +32,20 @@ import {
     SUCCESSFUL_SIGNUP_MSG,
     SUCCESSFUL_PROFILE_UPDATE_MSG,
 } from '../../utils/constants';
+import {
+    LARGE_SCREEN_WIDTH,
+    MIDDLE_SCREEN_WIDTH, 
+    SMALL_SCREEN_WIDTH,
+} from '../../utils/constants';
+import {
+    LARGE_SCREEN_MOVIES_NUMBER,
+    MIDDLE_SCREEN_MOVIES_NUMBER,
+    SMALL_SCREEN_MOVIES_NUMBER,
+    LARGE_SCREEN_MOVIES_TO_ADD_NUMBER,
+    MIDDLE_SCREEN_MOVIES_TO_ADD_NUMBER,
+    SMALL_SCREEN_MOVIES_TO_ADD_NUMBER,
+    SHORT_MOVIE_DURATION,
+} from '../../utils/constants';
 
 function App() {
     const [currentUser, setCurrentUser] = useState({});
@@ -55,13 +69,18 @@ function App() {
     const [inputValue, setInputValue] = useState('');
     let foundMovies = JSON.parse(query)?.foundMovies || [];
     let foundShortMovies = JSON.parse(query)?.foundShortMovies || [];
-    let foundSavedMovies = [];
-    let foundShortSavedMovies = [];
+    // let foundSavedMovies = [];
+    // let foundShortSavedMovies = [];
     const [moviesToRender, setMoviesToRender] = useState([]);
     const [savedMoviesToRender, setSavedMoviesToRender] = useState([]);
     const [savedMovies, setSavedMovies] = useState([]);
     const [savedShortMovies, setSavedShortMovies] = useState([]);
-    const [errorText, setErrorText] = useState('');
+
+    const [foundSavedMovies, setFoundSavedMovies] = useState([]);
+    const [foundShortSavedMovies, setFoundShortSavedMovies] = useState([]);
+
+    const [moviesError, setMoviesError] = useState('');
+    const [savedMoviesError, setSavedMoviesError] = useState('');
     const [moviesCheckbox, setMoviesCheckbox] = useState(false);
     const [savedMoviesCheckbox, setSavedMoviesCheckbox] = useState(false);
     const [currentCardsNumber, setCurrentCardsNumber] = useState(0);
@@ -114,20 +133,27 @@ function App() {
                     const foundSavedMovies = movies.filter((movie) => {
                         return movie.owner === currentUser._id;
                     })
-                    const foundSavedShortMovies = movies.filter((movie) => {
-                        return movie.duration <= 40;
+
+                    const foundShortSavedMovies = foundSavedMovies.filter((movie) => {
+                        return movie.duration <= SHORT_MOVIE_DURATION;
                     })
+
                     setSavedMovies(foundSavedMovies);
-                    setSavedShortMovies(foundSavedShortMovies);
-                    // setSavedMoviesToRender(foundSavedMovies);
+                    setSavedShortMovies(foundShortSavedMovies);
+                    setSavedMoviesToRender(foundSavedMovies);
                 })
                 .catch((err) => {
                     console.log(err);
                 });
-        }
-        
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        }        
     }, [currentUser._id, loggedIn]);
+
+    useEffect(() => {
+        const foundShortSavedMovies = savedMovies.filter((movie) => {
+            return movie.duration <= SHORT_MOVIE_DURATION;
+        })
+        setSavedShortMovies(foundShortSavedMovies);
+    }, [savedMovies]);
 
     // render movies cards and add more depending on the screen width 
     const updateDemensions = () => {
@@ -147,17 +173,17 @@ function App() {
 
     const calculateMoviesCount = () => {
         let initialCardsNumber;
-        if(screenWidth >= 1240) {
-            initialCardsNumber = 12;
-            setCardsToAdd(4);
+        if(screenWidth >= LARGE_SCREEN_WIDTH) {
+            initialCardsNumber = LARGE_SCREEN_MOVIES_NUMBER;
+            setCardsToAdd(LARGE_SCREEN_MOVIES_TO_ADD_NUMBER);
         } 
-        if(screenWidth < 1141) {
-            initialCardsNumber = 8;
-            setCardsToAdd(2);
+        if(screenWidth < MIDDLE_SCREEN_WIDTH) {
+            initialCardsNumber = MIDDLE_SCREEN_MOVIES_NUMBER;
+            setCardsToAdd(MIDDLE_SCREEN_MOVIES_TO_ADD_NUMBER);
         }
-        if(screenWidth < 601) {
-            initialCardsNumber = 5;
-            setCardsToAdd(2);
+        if(screenWidth < SMALL_SCREEN_WIDTH) {
+            initialCardsNumber = SMALL_SCREEN_MOVIES_NUMBER;
+            setCardsToAdd(SMALL_SCREEN_MOVIES_TO_ADD_NUMBER);
         }
         if (currentCardsNumber < initialCardsNumber) {
             setCurrentCardsNumber(initialCardsNumber);
@@ -251,7 +277,7 @@ function App() {
             })
             .catch((err) => {
                 if(err.status === 409) {
-                    handleError(CONFLICT_UPDATE_EMAIL_ERROR_MSG);                  
+                    handleError(CONFLICT_UPDATE_EMAIL_ERROR_MSG);
                 } else if(err.status === 404) {
                     handleError(USER_NOT_FOUND_ERROR_MSG); 
                 } else if(err.status === 400) {
@@ -296,43 +322,36 @@ function App() {
     }, []);
     
     useEffect(() => {
-        if(!errorText) {
+        if(!moviesError) {
             moviesCheckbox ? setMoviesToRender(foundShortMovies) : setMoviesToRender(foundMovies);
         }
-    }, [moviesCheckbox, errorText]);
+    }, [moviesCheckbox, moviesError]);
 
     useEffect(() => {
         if(!searchError) {
-            savedMoviesCheckbox ? setSavedMoviesToRender(foundShortSavedMovies) : setSavedMoviesToRender(foundSavedMovies);
-        } 
-        if(searchError) {
-            console.log(`checkbox: ${savedMoviesCheckbox}`);
-            if(savedMoviesCheckbox) {
-                console.log('short');
-                setSavedMoviesToRender(savedShortMovies);
-            } else {
-                console.log('all');
-                setSavedMoviesToRender(savedMovies);
-            }
-            
+            savedMoviesCheckbox ? setSavedMoviesToRender(foundShortSavedMovies) : setSavedMoviesToRender(foundSavedMovies);            
+        } else {
+            savedMoviesCheckbox ? setSavedMoviesToRender(savedShortMovies) : setSavedMoviesToRender(savedMovies);
         }
-    }, [savedMoviesCheckbox, searchError, location]);
+        
+    }, [savedMoviesCheckbox, searchError]);
 
     useEffect(() => {
-        if(query && location.pathname === '/movies') {
+        moviesToRender.length === 0 ? setMoviesError(NOT_FOUND_ERROR_MSG) : setMoviesError('');
+    }, [moviesToRender]);
+
+    useEffect(() => {
+        savedMoviesToRender.length === 0 ? setSavedMoviesError(NOT_FOUND_ERROR_MSG) : setSavedMoviesError('');
+    }, [savedMoviesToRender]);
+
+    useEffect(() => {
+        if(query) {
             const queryData = JSON.parse(query);
             queryData.moviesCheckbox = moviesCheckbox;
+            setInputValue(queryData.input);
             localStorage.setItem('query', JSON.stringify(queryData));
         }
     }, [query, moviesCheckbox, inputValue, location.pathname]);
-
-    // useEffect(() => {
-    //     function removeMovies() {
-    //         localStorage.removeItem('movies');
-    //     }
-    //     window.addEventListener('beforeunload', removeMovies);
-    //     return () => window.removeEventListener('beforeunload', removeMovies);
-    // }, []);
 
     async function handleMoviesSearch(input, moviesCheckbox) {
         const keyWord = new RegExp(input, "gi");
@@ -349,7 +368,7 @@ function App() {
                 })
                 .catch(err => {
                     console.log(err);
-                    setErrorText(INTERNAL_SERVER_ERROR_MSG);
+                    setMoviesError(INTERNAL_SERVER_ERROR_MSG);
                     setIsLoading(false);
                 });
         };
@@ -359,7 +378,7 @@ function App() {
         });
 
         const foundShortMovies = foundMovies.filter((movie) => {
-            return movie.duration <= 40;
+            return movie.duration <= SHORT_MOVIE_DURATION;
         });
 
         const query = {
@@ -373,10 +392,8 @@ function App() {
         if(moviesCheckbox) {
             setMoviesToRender(foundShortMovies);
             if(foundShortMovies.length === 0) {
-                setErrorText(NOT_FOUND_ERROR_MSG);
                 setIsLoading(false);
             } else {
-                setErrorText('');
                 setIsLoading(false);
                 setCurrentCardsNumber(0);
                 calculateMoviesCount();
@@ -384,10 +401,8 @@ function App() {
         } else {
             setMoviesToRender(foundMovies);
             if(foundMovies.length === 0) {
-                setErrorText(NOT_FOUND_ERROR_MSG)
                 setIsLoading(false);
             } else {
-                setErrorText('');
                 setIsLoading(false);
                 setCurrentCardsNumber(0);
                 calculateMoviesCount();
@@ -399,37 +414,31 @@ function App() {
         setIsLoading(true);
         const keyWord = new RegExp(input, "gi");
 
-        const foundSavedMovies = savedMovies.filter((movie) => {
+        const foundMovies = savedMovies.filter((movie) => {
             return (keyWord.test(movie.nameRU) || keyWord.test(movie.nameEN));
         });
+        setFoundSavedMovies(foundMovies);
 
-        const foundShortSavedMovies = foundSavedMovies.filter((movie) => {
-            return movie.duration <= 40;
+        const foundShortMovies = foundMovies.filter((movie) => {
+            return movie.duration <= SHORT_MOVIE_DURATION;
         });
+        setFoundShortSavedMovies(foundShortMovies);
 
         if(savedMoviesCheckbox) {
-            console.log('checkbox on');
-            setSavedMoviesToRender(foundShortSavedMovies);
+            setSavedMoviesToRender(foundShortMovies);
             if(foundShortMovies.length === 0) {
-                setErrorText(NOT_FOUND_ERROR_MSG);
                 setIsLoading(false);
             } else {
-                setErrorText('');
                 setIsLoading(false);
-                console.log(foundShortSavedMovies);
                 setCurrentCardsNumber(0);
                 calculateMoviesCount();
             };
         } else {
-            console.log('checkbox off');
-            setSavedMoviesToRender(foundSavedMovies);
-            if(foundMovies.length === cardsToAdd) {
-                setErrorText(NOT_FOUND_ERROR_MSG);
+            setSavedMoviesToRender(foundMovies);
+            if(foundMovies.length === 0) {
                 setIsLoading(false);
             } else {
-                setErrorText('');
                 setIsLoading(false);
-                console.log(foundSavedMovies);
                 setCurrentCardsNumber(0);
                 calculateMoviesCount();
             };
@@ -444,18 +453,22 @@ function App() {
         setSavedMoviesCheckbox(!savedMoviesCheckbox);
     };
 
-    function handleSaveMovie(data) {
+    function handleSaveMovie(data, saveHandler) {
         mainApi
         .saveMovie(data)
-        .then((newSavedMovie) => {
+        .then(newSavedMovie => {
             setSavedMovies([...savedMovies, newSavedMovie]);
+            saveHandler(true);
         })
         .catch(err => {
-            handleError(SAVE_MOVIE_ERROR_MSG);  
+            if(err.status === 400) {
+                handleError(SAVE_MOVIE_ERROR_MSG);
+            }
+            handleError(INTERNAL_SERVER_ERROR_MSG);  
         });
     };
 
-    function handleRemoveMovie(movieId) {
+    function handleRemoveMovie(movieId, saveHandler) {
         const findId = (id, arr) => {
             const searchMovie = arr.find(item => item.movieId === id);
             return searchMovie._id;
@@ -466,6 +479,7 @@ function App() {
         mainApi
             .removeMovie(idToDelete)
             .then(() => {
+                saveHandler(false);
                 setSavedMovies(previousState => previousState.filter((savedMovie) => savedMovie._id !== idToDelete));
                 setSavedMoviesToRender(previousState => previousState.filter((savedMovie) => savedMovie._id !== idToDelete));
             })
@@ -500,7 +514,7 @@ function App() {
                     movies={moviesToRender}
                     savedMovies={savedMovies}
                     onGetMovies={handleMoviesSearch}
-                    errorText={errorText}
+                    errorText={moviesError}
                     onShortMovies={handleMoviesCheckbox}
                     checked={moviesCheckbox}
                     cardsQuantity={currentCardsNumber}
@@ -520,11 +534,12 @@ function App() {
                     movies={savedMoviesToRender}
                     savedMovies={savedMovies}
                     onGetMovies={handleSavedMoviesSearch}
-                    errorText={errorText}
+                    errorText={savedMoviesError}
                     onShortMovies={handleSavedMoviesCheckbox}
                     checked={savedMoviesCheckbox}
                     onRemoveMovie={handleRemoveMovie}
                     isLoading={isLoading}
+                    lastInput={inputValue}
                     searchError={searchError}
                     setSearchError={setSearchError}
                 />
@@ -540,16 +555,17 @@ function App() {
                         isSendingReq={isSendingReq}
                     />
                 </Route>
-                <Route path="/profile">
-                    <Profile
-                        onMenuClick={handleMenu}
-                        onUpdateUser={handleUpdateUser}
-                        onLogout={handleLogout}
-                        isSendingReq={isSendingReq}
-                    />
-                </Route>
-                <Route path="*">
-                    <NotFound />
+                <ProtectedRoute 
+                    path="/profile"
+                    component={Profile}
+                    loggedIn={loggedIn}
+                    onMenuClick={handleMenu}
+                    onUpdateUser={handleUpdateUser}
+                    onLogout={handleLogout}
+                    isSendingReq={isSendingReq}
+                />
+                <Route path="/*">
+                    <NotFound loggedIn={loggedIn} />
                 </Route>
             </Switch>
             <Menu isOpen={isMenuOpen} onClose={closeMenu} />

@@ -17,6 +17,7 @@ function SavedMovies(props) {
                 onGetMovies={props.onGetMovies}
                 onChange={props.onShortMovies}
                 checked={props.checked}
+                lastInput={props.lastInput}
                 searchError={props.searchError}
                 setSearchError={props.setSearchError}
             />

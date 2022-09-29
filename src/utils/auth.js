@@ -1,4 +1,4 @@
-export const BASE_URL = 'https://api.movieexplorer.nomoredomains.sbs';
+import { BASE_URL } from './constants';
 
 function checkResponse(res) {
     if(res.ok) {
