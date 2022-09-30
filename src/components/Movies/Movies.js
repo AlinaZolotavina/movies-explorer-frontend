@@ -1,24 +1,46 @@
 import Header from '../Header/Header';
 import Navigation from '../Navigation/Navigation';
 import SearchForm from '../SearchForm/SearchForm';
+import Preloader from '../Preloader/Preloader';
 import MoviesCardList from '../MoviesCardList/MoviesCardList';
 import More from '../More/More';
 import Footer from "../Footer/Footer";
-import moviesList from '../../utils/moviesList';
 
 function Movies(props) {
     return (
         <>
             <Header class=" header header_color_black">
                 <Navigation
-                onClick={props.onMenuClick}
+                    onClick={props.onMenuClick}
                 />
             </Header>
-            <SearchForm />
-            <MoviesCardList
-                movies={moviesList}
+            <SearchForm
+                onGetMovies={props.onGetMovies}
+                onChange={props.onShortMovies}
+                checked={props.checked}
+                lastInput={props.lastInput}
+                searchError={props.searchError}
+                setSearchError={props.setSearchError}
+                savedMoviesLastInput={props.savedMoviesLastInput}
+                setSearched={props.setSearched}
             />
-            <More />
+            {props.isLoading ? (
+                <Preloader />
+            ) : (
+                <MoviesCardList
+                    movies={props.movies}
+                    savedMovies={props.savedMovies}
+                    onGetMovies={props.onGetMovies}
+                    errorText={props.errorText}
+                    cardsQuantity={props.cardsQuantity}
+                    onSaveMovie={props.onSaveMovie}
+                    onRemoveMovie={props.onRemoveMovie}
+                    isSavedMoviesPage={false}
+                />
+            )}
+            {props.movies.length > props.cardsQuantity && !props.isLoading ? (
+                <More onShowMore={props.onShowMore} />
+            ) : ('')}
             <Footer />
         </>
     )

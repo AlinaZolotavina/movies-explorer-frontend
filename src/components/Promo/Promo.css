@@ -24,24 +24,32 @@
     background: url(../../images/promo-image.svg);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: cover;
+    background-size: contain;
+}
+
+@media screen and (max-width: 1140px) {
+    .promo__image {
+        width: 90%;
+    }
 }
 
 @media screen and (max-width: 768px) {
     .promo {
         min-height: 844px;
-        padding: 300px 44px 70px;
+        padding: 300px 0 70px;
     }
 
     .promo__title {
         align-self: center;
         text-align: center;
+        padding: 0 30px;
     }
 
     .promo__image {
         width: 680px;
         height: 230px;
         align-self: center;
+        background-size: cover;
     }
 }
 

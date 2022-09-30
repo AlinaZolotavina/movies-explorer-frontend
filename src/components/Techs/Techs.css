@@ -103,6 +103,10 @@
 }
 
 @media screen and (max-width: 400px) {
+    .techs {
+        background-color: #202020;
+    }
+
     .list {
         grid-template-columns: repeat(2, 84px);
     }

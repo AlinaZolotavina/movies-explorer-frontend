@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import Form from '../Form/Form';
 
-function Login() {
+function Login(props) {
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
     function handleEmailChange(e) {
-        const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}$/i;
+        const emailRegex = /^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/i;
         const isEmailValid = emailRegex.test(e.target.value);
         if (!isEmailValid) {
             setEmailError('Пожалуйста, введите корректный E-mail');
@@ -35,6 +35,10 @@ function Login() {
         }
     }, [email, password, emailError, passwordError]);
     
+    function handleLogin(e) {
+        e.preventDefault();
+        props.onLogin(email, password);
+    }
 
     return (
         <Form
@@ -45,28 +49,34 @@ function Login() {
             linkText="Регистрация"
             linkPath="/signup"
             isFormValid={isFormValid}
+            onSubmit={handleLogin}
+            isSendingReq={props.isSendingReq}
         >
             <label className="form__item">
                 E-mail
                 <input
-                    className="form__input form__input_type_email"
+                    className={`form__input form__input_type_email ${emailError ? 'form__input_error' : ''}`}
                     placeholder="Введите e-mail"
+                    type="text"
                     value={email}
                     onChange={handleEmailChange}
                     required
+                    disabled={props.isSendingReq}
                 />
-                <span className="form__input-error email-input-error">{emailError}</span>
+                <span className="form__error email-input-error">{emailError}</span>
             </label>
             <label className="form__item">
                 Пароль
                 <input
-                    className="form__input form__input_type_password"
+                    className={`form__input form__input_type_password ${passwordError ? 'form__input_error' : ''}`}
                     placeholder="Введите пароль"
+                    type="password"
                     value={password}
                     onChange={handlePasswordChange}
                     required
+                    disabled={props.isSendingReq}
                 />
-                <span className="form__input-error password-input-error">{passwordError}</span>
+                <span className="form__error password-input-error">{passwordError}</span>
             </label>
        </Form>
     )
