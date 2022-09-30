@@ -46,24 +46,22 @@ function Profile(props) {
 
     const [isFormValid, setIsFormValid] = useState(false);
     useEffect(() => {
-        if(nameError && emailError) {
+        if(currentUser.name === name && currentUser.email === email) {
             setIsFormValid(false);
         } else {
-            setIsFormValid(true);
-        }
-    }, [nameError, emailError]);
+            if(nameError || emailError) {
+                setIsFormValid(false);
+                console.log('not valid');
+            } else {
+                setIsFormValid(true);
+                console.log('valid');
+            }
+        }        
+    }, [name, email, nameError, emailError, currentUser]);
 
     function handleLogout() {
         props.onLogout(currentUser.email)
     }
-
-    useEffect(() => {
-        if(currentUser.name === name && currentUser.email === email) {
-            setIsFormValid(false);
-        } else {
-            setIsFormValid(true);
-        }
-    }, [currentUser.name, currentUser.email, name, email])
 
     return (
         <>

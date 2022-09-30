@@ -20,6 +20,8 @@ function SavedMovies(props) {
                 lastInput={props.lastInput}
                 searchError={props.searchError}
                 setSearchError={props.setSearchError}
+                savedMoviesLastInput={props.savedMoviesLastInput}
+                setSearched={props.setSearched}
             />
             {props.isLoading ? (
                 <Preloader />

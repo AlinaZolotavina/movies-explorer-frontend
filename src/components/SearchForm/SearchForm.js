@@ -4,7 +4,10 @@ import './SearchForm.css';
 
 function SearchForm(props) {
     const location = useLocation();
+    const [inputValue, setInputValue] = useState('');
+    const [isFormValid, setIsFormValid] = useState(false);
 
+    // set last input for "movies" page
     useEffect(() => {
         if(props.lastInput && location.pathname === '/movies') {
             setInputValue(props.lastInput); 
@@ -13,19 +16,7 @@ function SearchForm(props) {
         }
     }, [props.lastInput, location.pathname]);
 
-    const [inputValue, setInputValue] = useState('');
-    const [isFormValid, setIsFormValid] = useState(false);
-
-    function handleInputChange(e) {
-        setInputValue(e.target.value);
-    }
-
-    function handleSubmit(e) {
-        e.preventDefault();
-        props.onGetMovies(inputValue, props.checked);
-        props.setSearchError('');
-    }
-
+    // check form validity
     useEffect(() => {
         if(!inputValue) {
             setIsFormValid(false);
@@ -35,6 +26,21 @@ function SearchForm(props) {
             props.setSearchError('');
         }
     }, [inputValue]);
+
+    function handleInputChange(e) {
+        setInputValue(e.target.value);
+    }
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        if(inputValue !== props.savedMoviesLastInput) {
+            props.setSearched(true);
+        } else {
+            props.setSearched(false);
+        }
+        props.onGetMovies(inputValue, props.checked);
+        props.setSearchError('');
+    }
 
     return (
         <section className="search">

@@ -67,27 +67,27 @@ function App() {
     let movies = localStorage.getItem('movies');
     const query = localStorage.getItem('query');
     const [inputValue, setInputValue] = useState('');
+    const [moviesCheckbox, setMoviesCheckbox] = useState(false);
     let foundMovies = JSON.parse(query)?.foundMovies || [];
     let foundShortMovies = JSON.parse(query)?.foundShortMovies || [];
-    // let foundSavedMovies = [];
-    // let foundShortSavedMovies = [];
     const [moviesToRender, setMoviesToRender] = useState([]);
-    const [savedMoviesToRender, setSavedMoviesToRender] = useState([]);
+    const [moviesError, setMoviesError] = useState('');
+
     const [savedMovies, setSavedMovies] = useState([]);
     const [savedShortMovies, setSavedShortMovies] = useState([]);
-
+    const [savedMoviesCheckbox, setSavedMoviesCheckbox] = useState(false);
+    const [savedMoviesInput, setSavedMoviesInput] = useState('');
     const [foundSavedMovies, setFoundSavedMovies] = useState([]);
     const [foundShortSavedMovies, setFoundShortSavedMovies] = useState([]);
+    const [savedMoviesToRender, setSavedMoviesToRender] = useState([]);
+    const [savedMoviesError, setSavedMoviesError] = useState('');    
+    const [searched, setSearched] = useState(false);
 
-    const [moviesError, setMoviesError] = useState('');
-    const [savedMoviesError, setSavedMoviesError] = useState('');
-    const [moviesCheckbox, setMoviesCheckbox] = useState(false);
-    const [savedMoviesCheckbox, setSavedMoviesCheckbox] = useState(false);
     const [currentCardsNumber, setCurrentCardsNumber] = useState(0);
     const [cardsToAdd, setCardsToAdd] = useState(0);
     const [searchError, setSearchError] = useState('Нужно ввести ключевое слово');
 
-    // if logged in, get user and set current user
+    // if logged in, get and set current user
     useEffect(() => {
         if(loggedIn) {
             mainApi.getCurrentUser()
@@ -156,6 +156,15 @@ function App() {
     }, [savedMovies]);
 
     // render movies cards and add more depending on the screen width 
+    useEffect(() => {
+        window.addEventListener('resize', updateDemensions);
+        return () => window.removeEventListener('resize', updateDemensions);
+    }, []);
+
+    useEffect(() => {
+        calculateMoviesCount();
+    }, [currentCardsNumber, screenWidth]);
+
     const updateDemensions = () => {
         let resizeTimeout;
         if(!resizeTimeout) {
@@ -164,12 +173,7 @@ function App() {
                 setScreenWidth(window.innerWidth);
             }, 150);
         };
-    };
-
-    useEffect(() => {
-        window.addEventListener('resize', updateDemensions);
-        return () => window.removeEventListener('resize', updateDemensions);
-    }, []);
+    };    
 
     const calculateMoviesCount = () => {
         let initialCardsNumber;
@@ -188,11 +192,7 @@ function App() {
         if (currentCardsNumber < initialCardsNumber) {
             setCurrentCardsNumber(initialCardsNumber);
         }
-    }
-
-    useEffect(() => {
-        calculateMoviesCount();
-    }, [currentCardsNumber, screenWidth]);
+    }    
 
     function showMoreMovies() {
         setCurrentCardsNumber((prev) => prev + cardsToAdd);
@@ -313,7 +313,50 @@ function App() {
         setIsMenuOpen(false);
     };
 
-    // movies search
+    // add movie to saved movies list
+    function handleSaveMovie(data, saveHandler) {
+        mainApi
+        .saveMovie(data)
+        .then(newSavedMovie => {
+            setSavedMovies([...savedMovies, newSavedMovie]);
+            saveHandler(true);
+        })
+        .catch(err => {
+            if(err.status === 400) {
+                handleError(SAVE_MOVIE_ERROR_MSG);
+            }
+            handleError(INTERNAL_SERVER_ERROR_MSG);  
+        });
+    };
+
+    // remove movie from saved movies list
+    function handleRemoveMovie(movieId, saveHandler) {
+        const findId = (id, arr) => {
+            const searchMovie = arr.find(item => item.movieId === id);
+            return searchMovie._id;
+        };
+
+        const  idToDelete = findId(movieId, savedMovies);
+        
+        mainApi
+            .removeMovie(idToDelete)
+            .then(() => {
+                saveHandler(false);
+                setSavedMovies(previousState => previousState.filter((savedMovie) => savedMovie._id !== idToDelete));
+                setSavedMoviesToRender(previousState => previousState.filter((savedMovie) => savedMovie._id !== idToDelete));
+            })
+            .catch(err => {
+                if(err.status === 404) {
+                    handleError(MOVIE_NOT_FOUND_ERROR_MSG)
+                } else if(err.status === 403) {
+                    handleError(FORBIDDEN_ERROR_MSG)
+                } else {
+                    handleError(DELETE_MOVIE_ERROR_MSG); 
+                };
+            });
+    };
+
+    // set input and checkbox values from local storage if a query was made
     useEffect(() => {
         if(query) {
             setMoviesCheckbox(JSON.parse(query)?.moviesCheckbox);
@@ -321,21 +364,29 @@ function App() {
         }
     }, []);
     
+    // show found movies depending on the checkbox
     useEffect(() => {
         if(!moviesError) {
             moviesCheckbox ? setMoviesToRender(foundShortMovies) : setMoviesToRender(foundMovies);
         }
     }, [moviesCheckbox, moviesError]);
 
+    // show found saved movies depending on the checkbox
     useEffect(() => {
-        if(!searchError) {
+        if(searched) {
             savedMoviesCheckbox ? setSavedMoviesToRender(foundShortSavedMovies) : setSavedMoviesToRender(foundSavedMovies);            
-        } else {
+        } 
+        else {
             savedMoviesCheckbox ? setSavedMoviesToRender(savedShortMovies) : setSavedMoviesToRender(savedMovies);
         }
         
-    }, [savedMoviesCheckbox, searchError]);
+    }, [savedMoviesCheckbox, searched, savedMovies]);
 
+    useEffect(() => {
+        setSearched(false);
+    }, [location.pathname]);
+
+    // show error if nothing was found
     useEffect(() => {
         moviesToRender.length === 0 ? setMoviesError(NOT_FOUND_ERROR_MSG) : setMoviesError('');
     }, [moviesToRender]);
@@ -344,6 +395,7 @@ function App() {
         savedMoviesToRender.length === 0 ? setSavedMoviesError(NOT_FOUND_ERROR_MSG) : setSavedMoviesError('');
     }, [savedMoviesToRender]);
 
+    // save input and checkbox state, if they were changed
     useEffect(() => {
         if(query) {
             const queryData = JSON.parse(query);
@@ -412,6 +464,7 @@ function App() {
 
     function handleSavedMoviesSearch(input, savedMoviesCheckbox) {
         setIsLoading(true);
+        setSavedMoviesInput(input);
         const keyWord = new RegExp(input, "gi");
 
         const foundMovies = savedMovies.filter((movie) => {
@@ -453,47 +506,6 @@ function App() {
         setSavedMoviesCheckbox(!savedMoviesCheckbox);
     };
 
-    function handleSaveMovie(data, saveHandler) {
-        mainApi
-        .saveMovie(data)
-        .then(newSavedMovie => {
-            setSavedMovies([...savedMovies, newSavedMovie]);
-            saveHandler(true);
-        })
-        .catch(err => {
-            if(err.status === 400) {
-                handleError(SAVE_MOVIE_ERROR_MSG);
-            }
-            handleError(INTERNAL_SERVER_ERROR_MSG);  
-        });
-    };
-
-    function handleRemoveMovie(movieId, saveHandler) {
-        const findId = (id, arr) => {
-            const searchMovie = arr.find(item => item.movieId === id);
-            return searchMovie._id;
-        };
-
-        const  idToDelete = findId(movieId, savedMovies);
-        
-        mainApi
-            .removeMovie(idToDelete)
-            .then(() => {
-                saveHandler(false);
-                setSavedMovies(previousState => previousState.filter((savedMovie) => savedMovie._id !== idToDelete));
-                setSavedMoviesToRender(previousState => previousState.filter((savedMovie) => savedMovie._id !== idToDelete));
-            })
-            .catch(err => {
-                if(err.status === 404) {
-                    handleError(MOVIE_NOT_FOUND_ERROR_MSG)
-                } else if(err.status === 403) {
-                    handleError(FORBIDDEN_ERROR_MSG)
-                } else {
-                    handleError(DELETE_MOVIE_ERROR_MSG); 
-                };
-            });
-    };
-
     function handleError(errorText) {
         setIsSuccess(false);
         setIsModalpOpen(true);
@@ -525,6 +537,8 @@ function App() {
                     lastInput={inputValue}
                     searchError={searchError}
                     setSearchError={setSearchError}
+                    savedMoviesLastInput={savedMoviesInput}
+                    setSearched={setSearched}
                 />
                 <ProtectedRoute
                     path="/saved-movies"
@@ -542,6 +556,8 @@ function App() {
                     lastInput={inputValue}
                     searchError={searchError}
                     setSearchError={setSearchError}
+                    savedMoviesLastInput={savedMoviesInput}
+                    setSearched={setSearched}
                 />
                 <Route path="/signup">
                     <Register
